@@ -426,27 +426,9 @@
     };
 
     let completedChoices = {};
-    let proceedBtnShown = false;
-
-    function checkAllChoicesDone() {
-      return ['background','music','reading','cooking'].every(k => completedChoices[k] === true);
-    }
-
-    function showProceedButton() {
-      const s3 = document.getElementById('scene-3');
-      const btn = document.createElement('button');
-      btn.id = 'proceed-btn-3'; btn.className = 'action-btn start-btn';
-      btn.textContent = 'Proceed to Scene 4 →';
-      btn.style.position = 'absolute'; btn.style.bottom = '10vh'; btn.style.left = '50%';
-      btn.style.transform = 'translateX(-50%)'; btn.style.zIndex = '30';
-      btn.onclick = () => { btn.remove(); goNext(); };
-      s3.appendChild(btn);
-      proceedBtnShown = true;
-    }
 
     function makeChoice(sceneNum, choice) {
       if (transitioning) return;
-      if (completedChoices[choice]) return;
       transitioning = true;
       playClickSound();
       initAudio();
@@ -473,16 +455,27 @@
         contBtn.style.left = '50%'; contBtn.style.transform = 'translateX(-50%)'; contBtn.style.zIndex = '30';
         contBtn.onclick = () => {
           contBtn.remove();
-          if (checkAllChoicesDone()) {
-            choiceBtns.style.display = 'none';
-            storyEl.textContent = '';
-            typeWriter('story-3', "I have learned so much from watching them. Maybe now I am ready to show myself.", 40);
-            if (!proceedBtnShown) showProceedButton();
+          // Always restore choice buttons
+          choiceBtns.style.display = 'flex';
+          choiceBtns.style.position = 'absolute'; choiceBtns.style.bottom = '10vh';
+          storyEl.textContent = '';
+          typeWriter('story-3', "Maybe I can learn something so they can accept me.", 40);
+
+          // Show Proceed button alongside choices only when all 4 have been explored
+          if (['background','music','reading','cooking'].every(k => completedChoices[k] === true)) {
+            if (!document.getElementById('proceed-btn-3')) {
+              const pBtn = document.createElement('button');
+              pBtn.id = 'proceed-btn-3'; pBtn.className = 'action-btn start-btn';
+              pBtn.textContent = 'Proceed to Scene 4 →';
+              pBtn.style.position = 'absolute'; pBtn.style.bottom = '5vh';
+              pBtn.style.left = '50%'; pBtn.style.transform = 'translateX(-50%)'; pBtn.style.zIndex = '30';
+              pBtn.onclick = () => { pBtn.remove(); goNext(); };
+              document.getElementById('scene-3').appendChild(pBtn);
+            }
           } else {
-            choiceBtns.style.display = 'flex';
-            choiceBtns.style.position = 'absolute'; choiceBtns.style.bottom = '10vh';
-            storyEl.textContent = '';
-            typeWriter('story-3', "Maybe I can learn something so they can accept me.", 40);
+            // Remove Proceed button if it was previously shown but now not all done (edge case)
+            const oldBtn = document.getElementById('proceed-btn-3');
+            if (oldBtn) oldBtn.remove();
           }
           transitioning = false;
         };
