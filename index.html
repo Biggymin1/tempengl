@@ -184,6 +184,30 @@
     #scene-4 { background: linear-gradient(135deg, #ffffcc, #ffff99); }
     #scene-5 { background: linear-gradient(135deg, #ffccff, #ff99ff); }
 
+    /* Intro scenes (disclaimer & context) */
+    #scene-disclaimer,
+    #scene-context {
+      background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85));
+      text-align: center;
+    }
+    #scene-disclaimer .story-text,
+    #scene-context .story-text {
+      color: #d4c5a9;
+      font-family: "Georgia", "Times New Roman", serif;
+      font-weight: 400;
+      text-align: center;
+      max-width: 750px;
+      margin: 0 auto;
+    }
+    .intro-continue-btn {
+      position: absolute;
+      bottom: 10vh;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 30;
+      display: none;
+    }
+
     /* Story text / typewriter */
     .story-container {
       position: absolute;
@@ -222,6 +246,22 @@
         <h1 class="title-text">The Monster's<br>Point of View</h1>
         <button class="action-btn start-btn" onclick="startGame()">Start</button>
       </div>
+    </div>
+
+    <!-- Scene: Disclaimer -->
+    <div class="scene inactive" id="scene-disclaimer">
+      <div class="story-container">
+        <p class="story-text" id="story-disclaimer"></p>
+      </div>
+      <button class="action-btn start-btn intro-continue-btn" id="disclaimer-continue" onclick="goToContext()">Continue →</button>
+    </div>
+
+    <!-- Scene: Context -->
+    <div class="scene inactive" id="scene-context">
+      <div class="story-container">
+        <p class="story-text" id="story-context"></p>
+      </div>
+      <button class="action-btn start-btn intro-continue-btn" id="context-continue" onclick="goToScene1()">Continue →</button>
     </div>
 
     <!-- Scene 1 -->
@@ -379,7 +419,7 @@
 
     let typewriterTimer;
 
-    function typeWriter(id, text, speed = 40) {
+    function typeWriter(id, text, speed = 40, onComplete) {
       const el = document.getElementById(id);
       el.textContent = '';
       let i = 0;
@@ -396,6 +436,8 @@
           }
           i++;
           typewriterTimer = setTimeout(type, speed);
+        } else if (onComplete) {
+          onComplete();
         }
       }
       type();
@@ -414,7 +456,52 @@
       setTimeout(() => typeWriter(`story-${n + 1}`, storyTexts[n], 40), 200);
     }
 
-    function startGame() { if (transitioning) return; transitioning = true; playClickSound(); initAudio(); currentSceneIndex = 0; transitionTo(scenes[0]); setTimeout(() => { transitioning = false; }, 800); }
+    function startGame() {
+      if (transitioning) return;
+      transitioning = true;
+      playClickSound();
+      initAudio();
+      sceneTitle.classList.remove('active'); sceneTitle.classList.add('inactive');
+      scenes.forEach(id => { const el = document.getElementById(id); el.classList.remove('active'); el.classList.add('inactive'); });
+      document.querySelectorAll('#scene-disclaimer, #scene-context').forEach(el => { el.classList.remove('active'); el.classList.add('inactive'); });
+      const disclaimer = document.getElementById('scene-disclaimer');
+      disclaimer.classList.remove('inactive'); disclaimer.classList.add('active');
+      const dText = "The purpose of this mixed medium website is to place you in the role of Mary Shelley's creature from Frankenstein — not as a passive observer, but as the being himself. You see through his eyes, feel his isolation, and witness the world that rejects him. The story is no longer about the monster. You are the monster. Please enjoy.";
+      setTimeout(() => {
+        typeWriter('story-disclaimer', dText, 40, () => {
+          document.getElementById('disclaimer-continue').style.display = 'block';
+        });
+        transitioning = false;
+      }, 200);
+    }
+
+    function goToContext() {
+      if (transitioning) return;
+      transitioning = true;
+      playClickSound();
+      document.getElementById('disclaimer-continue').style.display = 'none';
+      document.querySelectorAll('.scene.active').forEach(el => { el.classList.remove('active'); el.classList.add('inactive'); });
+      const ctx = document.getElementById('scene-context');
+      ctx.classList.remove('inactive'); ctx.classList.add('active');
+      const cText = "The experience starts based off the book at the end of Volume II, Chapter 3 (Chapter 11 in the 1831 edition), right after the Creature is violently driven out of a village by terrified townspeople and flees across the open fields to take shelter in a low, dilapidated wooden hovel attached to the back of the De Laceys' cottage. From inside this dark hovel, he discovers a tiny chink in the plastered wall that allows him to silently observe the impoverished family - blind old De Lacey, his son Felix, his daughter Agatha, and later Safie - as he gradually learns human language, music, history, and empathy across Chapters 11 through 15. While Shelley's novel culminates in the Creature being beaten and rejected the moment Felix returns home in Chapter 15, this interactive experience diverges at that exact threshold - allowing the player to choose what skills and knowledge the Creature absorbs from behind the wall and step inside the cottage to be welcomed as a member of the family rather than cast out.";
+      setTimeout(() => {
+        typeWriter('story-context', cText, 40, () => {
+          document.getElementById('context-continue').style.display = 'block';
+        });
+        transitioning = false;
+      }, 200);
+    }
+
+    function goToScene1() {
+      if (transitioning) return;
+      transitioning = true;
+      playClickSound();
+      document.getElementById('context-continue').style.display = 'none';
+      currentSceneIndex = 0;
+      transitionTo(scenes[0]);
+      setTimeout(() => { transitioning = false; }, 800);
+    }
+
     function goNext() { if (transitioning) return; transitioning = true; playClickSound(); initAudio(); currentSceneIndex = (currentSceneIndex + 1) % scenes.length; transitionTo(scenes[currentSceneIndex]); setTimeout(() => { transitioning = false; }, 800); }
     function goPrevious() { if (transitioning) return; transitioning = true; playClickSound(); initAudio(); currentSceneIndex = (currentSceneIndex - 1 + scenes.length) % scenes.length; transitionTo(scenes[currentSceneIndex]); setTimeout(() => { transitioning = false; }, 800); }
 
