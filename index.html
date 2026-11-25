@@ -179,6 +179,7 @@
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
+      transition: background 0.6s ease;
     }
     #scene-4 { background: linear-gradient(135deg, #ffffcc, #ffff99); }
     #scene-5 { background: linear-gradient(135deg, #ffccff, #ff99ff); }
@@ -418,6 +419,12 @@
     function goPrevious() { if (transitioning) return; transitioning = true; playClickSound(); initAudio(); currentSceneIndex = (currentSceneIndex - 1 + scenes.length) % scenes.length; transitionTo(scenes[currentSceneIndex]); setTimeout(() => { transitioning = false; }, 800); }
 
     // Choice interaction
+    const choiceBackgrounds = {
+      background: "url('assets/scene3background.jpg')",
+      music: "url('assets/scene3music.jpg')",
+      reading: "url('assets/scene3language.jpg')",
+      cooking: "url('assets/scene3cook.jpg')"
+    };
     const choiceResponses = {
       background: "The De Lacey family once lived in wealth and status in Paris. But after Felix helped an unjustly imprisoned merchant escape, their entire family was exiled to this humble cottage in Germany. They lost everything — yet they still share what little they have with strangers.",
       music: "Agatha's voice floats through the cottage walls — a soft, mournful melody. Joy, sorrow, longing — they're all there in the rise and fall of her song. I hum along quietly, my rough voice cracking. It's the first beautiful thing I've ever been a part of.",
@@ -445,6 +452,12 @@
       choiceBtns.style.display = 'none';
       const storyEl = document.getElementById('story-3');
       storyEl.textContent = '';
+      // Change background to choice-specific image
+      const scene3 = document.getElementById('scene-3');
+      scene3.style.background = `linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), ${choiceBackgrounds[choice]}`;
+      scene3.style.backgroundSize = 'cover';
+      scene3.style.backgroundPosition = 'center';
+      scene3.style.backgroundRepeat = 'no-repeat';
       typeWriter('story-3', choiceResponses[choice], 35);
 
       setTimeout(() => {
@@ -455,10 +468,14 @@
         contBtn.style.left = '50%'; contBtn.style.transform = 'translateX(-50%)'; contBtn.style.zIndex = '30';
         contBtn.onclick = () => {
           contBtn.remove();
-          // Always restore choice buttons
+          // Always restore choice buttons and reset background
           choiceBtns.style.display = 'flex';
           choiceBtns.style.position = 'absolute'; choiceBtns.style.bottom = '10vh';
           storyEl.textContent = '';
+          scene3.style.background = "linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url('assets/scene3.jpg')";
+          scene3.style.backgroundSize = 'cover';
+          scene3.style.backgroundPosition = 'center';
+          scene3.style.backgroundRepeat = 'no-repeat';
           typeWriter('story-3', "Maybe I can learn something so they can accept me.", 40);
 
           // Show Proceed button alongside choices only when all 4 have been explored
