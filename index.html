@@ -190,13 +190,19 @@
       background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85));
       text-align: center;
     }
+    #scene-disclaimer .story-container,
+    #scene-context .story-container {
+      width: auto;
+      max-width: 750px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
     #scene-disclaimer .story-text,
     #scene-context .story-text {
       color: #d4c5a9;
       font-family: "Georgia", "Times New Roman", serif;
       font-weight: 400;
       text-align: center;
-      max-width: 750px;
       margin: 0 auto;
     }
     .intro-continue-btn {
@@ -468,7 +474,7 @@
       disclaimer.classList.remove('inactive'); disclaimer.classList.add('active');
       const dText = "The purpose of this mixed medium website is to place you in the role of Mary Shelley's creature from Frankenstein — not as a passive observer, but as the being himself. You see through his eyes, feel his isolation, and witness the world that rejects him. The story is no longer about the monster. You are the monster. Please enjoy.";
       setTimeout(() => {
-        typeWriter('story-disclaimer', dText, 40, () => {
+        typeWriter('story-disclaimer', dText, 25, () => {
           document.getElementById('disclaimer-continue').style.display = 'block';
         });
         transitioning = false;
@@ -483,9 +489,9 @@
       document.querySelectorAll('.scene.active').forEach(el => { el.classList.remove('active'); el.classList.add('inactive'); });
       const ctx = document.getElementById('scene-context');
       ctx.classList.remove('inactive'); ctx.classList.add('active');
-      const cText = "The experience starts based off the book at the end of Volume II, Chapter 3 (Chapter 11 in the 1831 edition), right after the Creature is violently driven out of a village by terrified townspeople and flees across the open fields to take shelter in a low, dilapidated wooden hovel attached to the back of the De Laceys' cottage. From inside this dark hovel, he discovers a tiny chink in the plastered wall that allows him to silently observe the impoverished family - blind old De Lacey, his son Felix, his daughter Agatha, and later Safie - as he gradually learns human language, music, history, and empathy across Chapters 11 through 15. While Shelley's novel culminates in the Creature being beaten and rejected the moment Felix returns home in Chapter 15, this interactive experience diverges at that exact threshold - allowing the player to choose what skills and knowledge the Creature absorbs from behind the wall and step inside the cottage to be welcomed as a member of the family rather than cast out.";
+      const cText = "The experience begins at the end of Volume II, Chapter 3 (Chapter 11 in the 1831 edition), after the Creature is violently driven out of a village and takes shelter in a hovel attached to the De Laceys' cottage. From a chink in the wall, he silently observes the family and gradually learns human language, music, history, and empathy across Chapters 11 through 15. While Shelley's novel ends with the Creature being rejected, this experience diverges at that threshold - letting you choose what he learns and step inside to be welcomed as family rather than cast out.";
       setTimeout(() => {
-        typeWriter('story-context', cText, 40, () => {
+        typeWriter('story-context', cText, 25, () => {
           document.getElementById('context-continue').style.display = 'block';
         });
         transitioning = false;
