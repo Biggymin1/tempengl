@@ -420,6 +420,7 @@
       scene1Audio = scene1AudioEl;
       scene1Audio.volume = isMuted ? 0 : parseFloat(volumeSlider.value);
       scene1Audio.muted = isMuted;
+      scene1Audio.play().catch(e => { console.log('Audio play failed:', e); });
       updateMuteUI();
     }
 
