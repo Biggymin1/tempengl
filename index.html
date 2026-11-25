@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Monster's Point of View</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      overflow: hidden;
+    }
+
+    #scenes {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      overflow: hidden;
+    }
+
+    .scene {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .scene.active {
+      opacity: 1;
+      transform: scale(1);
+      pointer-events: auto;
+      z-index: 2;
+    }
+
+    .scene.inactive {
+      opacity: 0;
+      transform: scale(1.2);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+
+.action-btn {
+      padding: 16px 36px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #fff;
+      background: rgba(0, 0, 0, 0.55);
+      border: 2px solid rgba(255, 255, 255, 0.35);
+      border-radius: 50px;
+      cursor: pointer;
+      backdrop-filter: blur(6px);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      transition: transform 0.2s, box-shadow 0.2s, background 0.2s, border-color 0.2s;
+      z-index: 100;
+    }
+
+    .action-btn:hover {
+      transform: translateY(-3px) scale(1.03);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+      border-color: rgba(255, 255, 255, 0.8);
+    }
+
+    .action-btn:active {
+      transform: translateY(1px) scale(0.97);
+    }
+
+    /* Nav buttons for scenes */
+    .nav-buttons {
+      position: absolute;
+      bottom: 10vh;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 16px;
+      z-index: 10;
+      width: 100%;
+      justify-content: center;
+    }
+
+    .nav-btn {
+      padding: 14px 34px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #fff;
+      background: rgba(0, 0, 0, 0.55);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50px;
+      cursor: pointer;
+      backdrop-filter: blur(6px);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      transition: transform 0.2s, box-shadow 0.2s, background 0.2s, border-color 0.2s;
+    }
+
+    .nav-btn:hover {
+      transform: translateY(-3px) scale(1.03);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+      border-color: rgba(255, 255, 255, 0.8);
+    }
+
+    .nav-btn:active {
+      transform: translateY(1px) scale(0.97);
+    }
+
+    .prev-btn { background: rgba(108, 117, 125, 0.7); border-color: rgba(200, 200, 200, 0.4); }
+    .prev-btn:hover { background: rgba(130, 140, 150, 0.85); }
+    .next-btn { background: rgba(46, 139, 87, 0.7); border-color: rgba(100, 200, 150, 0.4); }
+    .next-btn:hover { background: rgba(60, 170, 100, 0.85); }
+
+    /* Choice buttons for scene 3 */
+    .choice-buttons {
+      position: absolute;
+      bottom: 10vh;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      z-index: 20;
+      justify-content: center;
+      max-width: 700px;
+    }
+
+    .choice-btn {
+      padding: 12px 28px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #fff;
+      background: rgba(0, 0, 0, 0.65);
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      border-radius: 50px;
+      cursor: pointer;
+      backdrop-filter: blur(4px);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      transition: transform 0.2s, box-shadow 0.2s, background 0.2s, border-color 0.2s;
+    }
+
+    .choice-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+      background: rgba(40, 100, 200, 0.7);
+      border-color: rgba(255, 255, 255, 0.8);
+    }
+
+    .choice-btn:active {
+      transform: translateY(1px);
+    }
+
+    /* Scene-specific backgrounds */
+    #scene-1 {
+      background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('assets/scene1.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+    #scene-2 {
+      background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('assets/scene2.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+    #scene-3 {
+      background: linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url('assets/scene3.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+    #scene-4 { background: linear-gradient(135deg, #ffffcc, #ffff99); }
+    #scene-5 { background: linear-gradient(135deg, #ffccff, #ff99ff); }
+
+    /* Story text / typewriter */
+    .story-container {
+      position: absolute;
+      top: 30vh;
+      left: 8%;
+      right: 8%;
+      z-index: 20;
+      max-width: 700px;
+    }
+
+    .story-text {
+      font-family: "Courier New", Courier, monospace;
+      font-size: clamp(1rem, 1.8vw, 1.6rem);
+      line-height: 1.7;
+      color: #ffffff;
+      text-shadow: 2px 2px 8px rgba(0,0,0,0.9), 0 0 20px rgba(0,0,0,0.6);
+      font-weight: 600;
+      margin: 0;
+      white-space: pre-wrap;
+      letter-spacing: 0.5px;
+      text-align: left;
+    }
+
+    #scene-1 .story-text { color: #f5e6d3; }
+    #scene-2 .story-text { color: #e8f5e9; }
+    #scene-4 .story-text { color: #fffde7; }
+    #scene-5 .story-text { color: #fce4ec; }
+  </style>
+</head>
+<body>
+
+  <div id="scenes">
+    <!-- Scene 0: Title -->
+    <div class="scene active" id="scene-title">
+      <div class="title-content">
+        <h1 class="title-text">The Monster's<br>Point of View</h1>
+        <button class="action-btn start-btn" onclick="startGame()">Start</button>
+      </div>
+    </div>
+
+    <!-- Scene 1 -->
+    <div class="scene inactive" id="scene-1">
+      <div class="story-container">
+        <p class="story-text" id="story-1"></p>
+      </div>
+      <div class="nav-buttons">
+        <button class="nav-btn prev-btn" onclick="goPrevious()">◀ Previous</button>
+        <button class="nav-btn next-btn" onclick="goNext()">Next ▶</button>
+      </div>
+    </div>
+
+    <!-- Scene 2 -->
+    <div class="scene inactive" id="scene-2">
+      <div class="story-container">
+        <p class="story-text" id="story-2"></p>
+      </div>
+      <div class="nav-buttons">
+        <button class="nav-btn prev-btn" onclick="goPrevious()">◀ Previous</button>
+        <button class="nav-btn next-btn" onclick="goNext()">Next ▶</button>
+      </div>
+    </div>
+
+    <!-- Scene 3 -->
+    <div class="scene inactive" id="scene-3">
+      <div class="story-container">
+        <p class="story-text" id="story-3"></p>
+      </div>
+      <div class="choice-buttons" id="choice-buttons-3">
+        <button class="choice-btn" onclick="makeChoice(3, 'background')">📖 Learn about the family background</button>
+        <button class="choice-btn" onclick="makeChoice(3, 'music')">🎵 Learn about music</button>
+        <button class="choice-btn" onclick="makeChoice(3, 'reading')">📝 Learn reading and writing</button>
+        <button class="choice-btn" onclick="makeChoice(3, 'cooking')">🍲 Learn about cooking</button>
+      </div>
+    </div>
+
+    <!-- Scene 4 -->
+    <div class="scene inactive" id="scene-4">
+      <div class="story-container">
+        <p class="story-text" id="story-4"></p>
+      </div>
+      <div class="nav-buttons">
+        <button class="nav-btn prev-btn" onclick="goPrevious()">◀ Previous</button>
+        <button class="nav-btn next-btn" onclick="goNext()">Next ▶</button>
+      </div>
+    </div>
+
+    <!-- Scene 5 -->
+    <div class="scene inactive" id="scene-5">
+      <div class="story-container">
+        <p class="story-text" id="story-5"></p>
+      </div>
+      <div class="nav-buttons">
+        <button class="nav-btn prev-btn" onclick="goPrevious()">◀ Previous</button>
+        <button class="nav-btn next-btn" onclick="goNext()">Next ▶</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="audio-controls">
+    <button class="mute-btn" id="mute-btn" onclick="toggleMute()">🔊 Unmute</button>
+    <input type="range" class="volume-slider" id="volume-slider" min="0" max="1" step="0.1" value="0.7" onchange="setVolume(this.value)">
+  </div>
+
+  <audio id="scene1-audio" src="assets/scene1audio.mp3" loop></audio>
+
+  <script>
+    const sceneTitle = document.getElementById('scene-title');
+    const muteBtn = document.getElementById('mute-btn');
+    const volumeSlider = document.getElementById('volume-slider');
+    const scene1AudioEl = document.getElementById('scene1-audio');
+    let transitioning = false;
+    let isMuted = false;
+    let audioStarted = false;
+
+    let audioCtx;
+    let masterGain;
+    let clickBuffer;
+    let typewriterBuffer;
+    let scene1Audio;
+
+    function initAudio() {
+      if (audioStarted) return;
+      audioStarted = true;
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      masterGain = audioCtx.createGain();
+      masterGain.gain.value = isMuted ? 0 : 0.7;
+      masterGain.connect(audioCtx.destination);
+      createClickBuffer();
+      createTypewriterBuffer();
+      console.log('Web Audio initialized');
+      scene1Audio = scene1AudioEl;
+      scene1Audio.volume = isMuted ? 0 : parseFloat(volumeSlider.value);
+      scene1Audio.muted = isMuted;
+      updateMuteUI();
+    }
+
+    function createClickBuffer() {
+      const s = audioCtx.sampleRate, len = s * 0.12;
+      const buf = audioCtx.createBuffer(1, len, s);
+      const d = buf.getChannelData(0);
+      for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.exp(-i/s * 50) * 0.4;
+      clickBuffer = buf;
+    }
+
+    function createTypewriterBuffer() {
+      const s = audioCtx.sampleRate, len = s * 0.05;
+      const buf = audioCtx.createBuffer(1, len, s);
+      const d = buf.getChannelData(0);
+      for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.exp(-i/s * 100) * 0.12;
+      typewriterBuffer = buf;
+    }
+
+    function playClickSound() {
+      if (!clickBuffer || !audioCtx) return;
+      const src = audioCtx.createBufferSource();
+      src.buffer = clickBuffer;
+      const g = audioCtx.createGain();
+      g.gain.setValueAtTime(isMuted ? 0 : 0.5, audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+      src.connect(g); g.connect(masterGain); src.start();
+    }
+
+    function toggleMute() {
+      isMuted = !isMuted;
+      if (masterGain) masterGain.gain.setValueAtTime(isMuted ? 0 : 0.7, audioCtx.currentTime);
+      if (scene1Audio) { scene1Audio.muted = isMuted; scene1Audio.volume = isMuted ? 0 : parseFloat(volumeSlider.value); }
+      updateMuteUI();
+    }
+
+    function setVolume(val) {
+      const v = parseFloat(val);
+      if (masterGain) masterGain.gain.setValueAtTime(isMuted ? 0 : v, audioCtx.currentTime);
+      if (scene1Audio) { scene1Audio.volume = isMuted ? 0 : v; scene1Audio.muted = isMuted; }
+      if (!isMuted) isMuted = false;
+      updateMuteUI();
+    }
+
+    function updateMuteUI() {
+      muteBtn.textContent = isMuted ? '🔊 Unmute' : '🔇 Mute';
+      muteBtn.classList.toggle('muted', isMuted);
+    }
+
+    const scenes = ['scene-1', 'scene-2', 'scene-3', 'scene-4', 'scene-5'];
+    let currentSceneIndex = 0;
+
+    const storyTexts = [
+      "The night was cold as Victor approached the De Lacey cottage.",
+      "Through the window he watched the family gather around their hearth.",
+      "Maybe I can learn something so they can accept me.",
+      "Agatha and Felix tended their chores, unaware of the shadow outside.",
+      "As dawn broke, Victor turned away, forever separated by what he had become."
+    ];
+
+    let typewriterTimer;
+
+    function typeWriter(id, text, speed = 40) {
+      const el = document.getElementById(id);
+      el.textContent = '';
+      let i = 0;
+      function type() {
+        if (i < text.length) {
+          el.textContent += text.charAt(i);
+          if (typewriterBuffer && audioCtx && !isMuted) {
+            const src = audioCtx.createBufferSource();
+            src.buffer = typewriterBuffer;
+            const g = audioCtx.createGain();
+            g.gain.setValueAtTime(0.08, audioCtx.currentTime);
+            g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+            src.connect(g); g.connect(masterGain); src.start();
+          }
+          i++;
+          typewriterTimer = setTimeout(type, speed);
+        }
+      }
+      type();
+    }
+
+    function transitionTo(sceneId) {
+      clearTimeout(typewriterTimer);
+      const cur = document.querySelector('.scene.active');
+      if (cur && cur.id === 'scene-1' && scene1Audio) { scene1Audio.pause(); scene1Audio.currentTime = 0; }
+      sceneTitle.classList.remove('active'); sceneTitle.classList.add('inactive');
+      scenes.forEach(id => { const el = document.getElementById(id); el.classList.remove('active'); el.classList.add('inactive'); });
+      const active = document.getElementById(sceneId);
+      active.classList.remove('inactive'); active.classList.add('active');
+      if (sceneId === 'scene-1' && scene1Audio) scene1Audio.play().catch(e => {});
+      const n = parseInt(sceneId.replace('scene-', '')) - 1;
+      setTimeout(() => typeWriter(`story-${n + 1}`, storyTexts[n], 40), 200);
+    }
+
+    function startGame() { if (transitioning) return; transitioning = true; playClickSound(); initAudio(); currentSceneIndex = 0; transitionTo(scenes[0]); setTimeout(() => { transitioning = false; }, 800); }
+    function goNext() { if (transitioning) return; transitioning = true; playClickSound(); initAudio(); currentSceneIndex = (currentSceneIndex + 1) % scenes.length; transitionTo(scenes[currentSceneIndex]); setTimeout(() => { transitioning = false; }, 800); }
+    function goPrevious() { if (transitioning) return; transitioning = true; playClickSound(); initAudio(); currentSceneIndex = (currentSceneIndex - 1 + scenes.length) % scenes.length; transitionTo(scenes[currentSceneIndex]); setTimeout(() => { transitioning = false; }, 800); }
+
+    // Choice interaction
+    const choiceResponses = {
+      background: "The De Lacey family once lived in wealth and status in Paris. But after Felix helped an unjustly imprisoned merchant escape, their entire family was exiled to this humble cottage in Germany. They lost everything — yet they still share what little they have with strangers.",
+      music: "Agatha's voice floats through the cottage walls — a soft, mournful melody. Joy, sorrow, longing — they're all there in the rise and fall of her song. I hum along quietly, my rough voice cracking. It's the first beautiful thing I've ever been a part of.",
+      reading: "Through the window, I see Felix teaching Agatha from a worn book. He points to letters. I trace the shapes in the dirt with a stick, mimicking them. If I can learn their words, maybe I can tell them I mean no harm.",
+      cooking: "The aroma of stew drifts from the cottage chimney. The family gathers around a small pot. \"There is enough,\" blind De Lacey says, \"food tastes better when shared.\" I swallow hard — not for food, but for a seat at that table."
+    };
+
+    let completedChoices = {};
+    let proceedBtnShown = false;
+
+    function checkAllChoicesDone() {
+      return ['background','music','reading','cooking'].every(k => completedChoices[k] === true);
+    }
+
+    function showProceedButton() {
+      const s3 = document.getElementById('scene-3');
+      const btn = document.createElement('button');
+      btn.id = 'proceed-btn-3'; btn.className = 'action-btn start-btn';
+      btn.textContent = 'Proceed to Scene 4 →';
+      btn.style.position = 'absolute'; btn.style.bottom = '10vh'; btn.style.left = '50%';
+      btn.style.transform = 'translateX(-50%)'; btn.style.zIndex = '30';
+      btn.onclick = () => { btn.remove(); goNext(); };
+      s3.appendChild(btn);
+      proceedBtnShown = true;
+    }
+
+    function makeChoice(sceneNum, choice) {
+      if (transitioning) return;
+      if (completedChoices[choice]) return;
+      transitioning = true;
+      playClickSound();
+      initAudio();
+
+      completedChoices[choice] = true;
+      document.querySelectorAll('#choice-buttons-3 .choice-btn').forEach(btn => {
+        if (btn.getAttribute('onclick').includes(choice)) {
+          btn.style.opacity = '0.5'; btn.style.cursor = 'default';
+          btn.style.pointerEvents = 'none'; btn.textContent = '✓ ' + btn.textContent.trim();
+        }
+      });
+
+      const choiceBtns = document.getElementById('choice-buttons-3');
+      choiceBtns.style.display = 'none';
+      const storyEl = document.getElementById('story-3');
+      storyEl.textContent = '';
+      typeWriter('story-3', choiceResponses[choice], 35);
+
+      setTimeout(() => {
+        const contBtn = document.createElement('button');
+        contBtn.className = 'action-btn nav-btn next-btn';
+        contBtn.textContent = 'Continue →';
+        contBtn.style.position = 'absolute'; contBtn.style.bottom = '10vh';
+        contBtn.style.left = '50%'; contBtn.style.transform = 'translateX(-50%)'; contBtn.style.zIndex = '30';
+        contBtn.onclick = () => {
+          contBtn.remove();
+          if (checkAllChoicesDone()) {
+            choiceBtns.style.display = 'none';
+            storyEl.textContent = '';
+            typeWriter('story-3', "I have learned so much from watching them. Maybe now I am ready to show myself.", 40);
+            if (!proceedBtnShown) showProceedButton();
+          } else {
+            choiceBtns.style.display = 'flex';
+            choiceBtns.style.position = 'absolute'; choiceBtns.style.bottom = '10vh';
+            storyEl.textContent = '';
+            typeWriter('story-3', "Maybe I can learn something so they can accept me.", 40);
+          }
+          transitioning = false;
+        };
+        document.getElementById('scene-3').appendChild(contBtn);
+        transitioning = false;
+      }, 2000);
+    }
+  </script>
+</body>
+</html>
