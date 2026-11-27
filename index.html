@@ -257,7 +257,12 @@
       background-position: center;
       background-repeat: no-repeat;
     }
-    #scene-9 { background: linear-gradient(135deg, #3a1c1c, #1a0e0e); }
+    #scene-9 {
+      background: linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url('assets/scene9.jpeg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
     #scene-8b {
       background: linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url('assets/scene8.jpeg');
       background-size: cover;
@@ -514,12 +519,10 @@
       <div class="story-container">
         <p class="story-text" id="story-8"></p>
       </div>
-      <div class="choice-buttons" id="choice-buttons-8">
-        <button class="choice-btn" onclick="makeInterruptionChoice('speak')">🗣️ Call out — let them hear your voice first</button>
-        <button class="choice-btn" onclick="makeInterruptionChoice('stay')">🪑 Stay by the fire — trust De Lacey to explain</button>
-        <button class="choice-btn" onclick="makeInterruptionChoice('flee')">🏃 Retreat to the shadows — observe what happens</button>
+      <div class="nav-buttons">
+        <button class="nav-btn prev-btn" onclick="goPrevious()">◀ Previous</button>
+        <button class="nav-btn next-btn" onclick="goToScene('scene-8b')">Continue →</button>
       </div>
-      <button class="action-btn nav-btn skip-btn" onclick="skipToNext('scene-8')" style="position: absolute; top: 2vh; right: 2vh; z-index: 30; padding: 8px 20px; font-size: 0.85rem;">Skip ⏭</button>
     </div>
 
     <!-- Scene 8b: Shouting & Provocation -->
@@ -579,9 +582,8 @@
       <div class="story-container">
         <p class="story-text" id="story-13"></p>
       </div>
-      <div class="choice-buttons" id="choice-buttons-13">
-        <button class="choice-btn" onclick="endStory('close')">🚪 Close the hovel</button>
-        <button class="choice-btn" onclick="endStory('dark')">🌑 Step into the dark</button>
+      <div class="nav-buttons">
+        <button class="nav-btn next-btn" onclick="goToFinalChoice()" style="opacity: 0; pointer-events: none;">Continue →</button>
       </div>
     </div>
 
@@ -602,6 +604,7 @@
   </div>
 
   <audio id="scene1-audio" src="assets/scene1audio.mp3" loop preload="auto"></audio>
+  <audio id="dark-audio" src="assets/dark.mp3" loop preload="auto"></audio>
 
   <script>
     const sceneTitle = document.getElementById('scene-title');
@@ -617,6 +620,7 @@
     let clickBuffer;
     let typewriterBuffer;
     let scene1Audio;
+    let darkAudio;
 
     function initAudio() {
       if (audioStarted) return;
@@ -632,6 +636,8 @@
       scene1Audio.volume = isMuted ? 0 : parseFloat(volumeSlider.value);
       scene1Audio.muted = isMuted;
       scene1Audio.play().catch(e => { console.log('Audio play failed:', e); });
+      darkAudio = document.getElementById('dark-audio');
+      if (darkAudio) { darkAudio.volume = isMuted ? 0 : parseFloat(volumeSlider.value); darkAudio.muted = isMuted; }
       updateMuteUI();
     }
 
@@ -665,6 +671,7 @@
       isMuted = !isMuted;
       if (masterGain) masterGain.gain.setValueAtTime(isMuted ? 0 : 0.7, audioCtx.currentTime);
       if (scene1Audio) { scene1Audio.muted = isMuted; scene1Audio.volume = isMuted ? 0 : parseFloat(volumeSlider.value); }
+      if (darkAudio) { darkAudio.muted = isMuted; darkAudio.volume = isMuted ? 0 : parseFloat(volumeSlider.value); }
       updateMuteUI();
     }
 
@@ -672,6 +679,7 @@
       const v = parseFloat(val);
       if (masterGain) masterGain.gain.setValueAtTime(isMuted ? 0 : v, audioCtx.currentTime);
       if (scene1Audio) { scene1Audio.volume = isMuted ? 0 : v; scene1Audio.muted = isMuted; }
+      if (darkAudio) { darkAudio.volume = isMuted ? 0 : v; darkAudio.muted = isMuted; }
       if (!isMuted) isMuted = false;
       updateMuteUI();
     }
@@ -703,22 +711,22 @@
     let currentSceneIndex = 0;
 
     const storyTexts = [
-      "The night was cold as Victor approached the De Lacey cottage.",
-      "Through the window he watched the family gather around their hearth.",
+      "The night was cold as I approached the De Lacey cottage.",
+      "Through the window I watched the family gather around their hearth.",
       "Maybe I can learn something so they can accept me.",
       "The cottage is quiet. The family rests unaware inside. Perhaps there is something I can do to help them -- small acts that need no words.",
       "I learned most of it now. Maybe I can approach them and they will accept me.",
       "One sunny afternoon, I watch from my hovel as Felix, Agatha, and Safie leave the cottage together for a long walk. The blind father remains behind alone, and soon I hear the soft strum of his guitar drifting through the walls.",
       "My heart pounds as I step out of my hovel. I knock on the front door and ask to rest by the fire for a few minutes. Old De Lacey — unable to see me — warmly invites me in and offers me a seat by the hearth.",
       "Without admitting what I look like, I tell De Lacey that I am a lonely traveler seeking protection from prejudiced neighbors who misjudge me. Moved by my gentle voice and sorrow, De Lacey promises to help plead my case to his children.",
-      "Just as I grab De Lacey's knees in gratitude, a knock sounds at the door. Felix, Agatha, and Safie have returned early. In the book, Agatha faints, Safie flees, and Felix beats me with a stick — but here, my alternate path begins.",
-      "The first blow lands across my ribs. A second cracks against my shoulder, and my stitched body simply takes it — I have endured worse cold, worse hunger, worse loneliness than this. But the shock is not in the pain. It is in the hand that swings the stick: the hand I watched split firewood all winter. Felix. His voice breaks with panic. 'Get away from him! Get out of our home!' Behind him Agatha has crumpled against the table, Safie is already fleeing through the open door, and old De Lacey reaches out blindly into the chaos, crying, 'What is happening? Felix — why would you strike our guest?' I could close my hand and snap that stick in two. I could stop him with one arm. But I only try to find the words I practiced a hundred times in the dark — 'Wait — please — listen — I am the one who—' — and the noise swallows every one of them.",
-      "I do not run because I am weak. I run because staying means only two things: letting Felix beat me until this body finally fails, or catching that stick and breaking the man I love to save myself. So I run. Behind me, the cottage window glows warm and golden — the same hearth I touched only moments ago. Ahead of me, the freezing dark closes back in. I do not dare look back. Every step I take into the trees severs the only human bond I have ever known.",
-      "I fall to my knees in the snow and drive my great stitched hands into the frozen earth, and I weep. I weep for Agatha, who fainted at the sight of me. I weep for Safie, who ran in terror. I weep for Felix, who hated me before I could speak a single word I had learned so carefully. What was any of it for? I stopped stealing their food so they would not go hungry. I froze in the dark so they could keep their fire. I taught myself their letters and their language by moonlight. And one look at my face erased all of it. For the first time, I understand why Milton's Satan chose to war against his creator. If the world will not offer me kindness, then fear is all I have left to take.",
-      "You were behind my eyes the entire time. You laid your hand against the wall and chose what I would learn. You chopped the wood. You read the books. You believed kindness would be enough. So tell me — what did I do wrong?",
-      "Then the front door bursts open, and the warm room fills with noise. Felix storms in with Agatha close behind him — both shouting before they are even through the doorway. 'What is that — what is that thing doing beside our father?' Felix's voice cracks with fury. 'Get away from him! Get away from him now!' Agatha's scream climbs over his: 'It is the monster — it has come to kill us, Felix, it has come for us all!' Their terror feeds on itself, each shout sharper than the last. Felix seizes the heavy stick beside the hearth, his knuckles whitening around the wood. Behind them Safie shrinks back toward the door, and old De Lacey lifts his unseeing hands, begging them to stop. I try to raise my palms and find the words I practiced — but they are already certain. And certainty, in frightened men, turns so quickly to violence.",
+      "Just as I grab De Lacey's knees in gratitude, a knock sounds at the door. Felix, Agatha, and Safie have returned early.",
+      "The first blow lands across my ribs. A second cracks against my shoulder, and my stitched body simply takes it — I have endured worse cold, worse hunger, worse loneliness than this. But the shock is not in the pain. It is in the hand that swings the stick: the hand I watched split firewood all winter. Felix. His voice breaks with panic. 'Get away from him! Get out of our home!'",
+      "I do not run because I am weak. I run because staying means only two things: letting Felix beat me until this body finally fails, or catching that stick and breaking the man I love to save myself.",
+      "I fall to my knees in the snow and weep. I taught myself their language by moonlight. I carried their wood. I froze in the dark so they could keep warm. And one look at my face erased all of it.",
+      "You there behind the screen — I felt every click. You gave me hope. So tell me — what did I do wrong?",
+      "Then the front door bursts open, and the warm room fills with noise. Felix storms in with Agatha close behind him — both shouting before they are even through the doorway. 'What is that — what is that thing doing beside our father?' Felix's voice cracks with fury. 'Get away from him! Get away from him now!' Agatha's scream climbs over his: 'It is the monster — it has come to kill us, Felix, it has come for us all!'",
       "When a creature does everything right and the world still calls him a monster — who is the real monster? The one who was stitched together... or the ones who shut the door?",
-      "Thank you for playing. This is a project by Amin Hisham for UBC English."
+      "Thank you for playing. This is a project by Amin Hisham for UBC English Creative Adaptation — questioning the line between who we call a monster and who we make one."
     ];
 
     let typewriterTimer;
@@ -750,12 +758,12 @@
     function transitionTo(sceneId) {
       clearTimeout(typewriterTimer);
       const cur = document.querySelector('.scene.active');
-      if (cur && cur.id === 'scene-1' && scene1Audio) { scene1Audio.pause(); scene1Audio.currentTime = 0; }
+      if (sceneId === 'scene-8b' && scene1Audio) { scene1Audio.pause(); scene1Audio.currentTime = 0; }
       sceneTitle.classList.remove('active'); sceneTitle.classList.add('inactive');
       scenes.forEach(id => { const el = document.getElementById(id); el.classList.remove('active'); el.classList.add('inactive'); });
       const active = document.getElementById(sceneId);
       active.classList.remove('inactive'); active.classList.add('active');
-      if (sceneId === 'scene-1' && scene1Audio) scene1Audio.play().catch(e => {});
+      if (sceneId === 'scene-8b' && darkAudio) darkAudio.play().catch(e => {});
       const n = sceneToStoryIndex[sceneId];
       const storySuffix = sceneId.replace('scene-', '');
       setTimeout(() => typeWriter(`story-${storySuffix}`, storyTexts[n], 40), 200);
@@ -788,7 +796,7 @@
       document.querySelectorAll('.scene.active').forEach(el => { el.classList.remove('active'); el.classList.add('inactive'); });
       const ctx = document.getElementById('scene-context');
       ctx.classList.remove('inactive'); ctx.classList.add('active');
-      const cText = "The experience begins at the end of Volume II, Chapter 3 (Chapter 11 in the 1831 edition), after the Creature is violently driven out of a village and takes shelter in a hovel attached to the De Laceys' cottage. From a chink in the wall, he silently observes the family and gradually learns human language, music, history, and empathy across Chapters 11 through 15. While Shelley's novel ends with the Creature being rejected, this experience diverges at that threshold - letting you choose what he learns and step inside to be welcomed as family rather than cast out.";
+      const cText = "The experience begins at the end of Volume II, Chapter 3 (Chapter 11 in the 1831 edition), after the Creature is violently driven out of a village and takes shelter in a hovel attached to the De Laceys' cottage. From a chink in the wall, he silently observes the family and gradually learns human language, music, history, and empathy across Chapters 11 through 15. While Shelley's novel ends with the Creature being rejected, this experience diverges at that threshold — allowing you to experience directly what it means to be seen as a monster.";
       setTimeout(() => {
         typeWriter('story-context', cText, 25, () => {
           document.getElementById('context-continue').style.display = 'block';
@@ -998,95 +1006,7 @@
       }, 2000);
     }
 
-    // Scene 8 - Interruption choice interaction
-    const interruptionChoiceBackgrounds = {
-      speak: "linear-gradient(135deg, #2d1b1b, #4a2e2e)",
-      stay: "linear-gradient(135deg, #3e2723, #5c3d2e)",
-      flee: "linear-gradient(135deg, #1a1a2e, #2d2d4a)"
-    };
-    const interruptionChoiceResponses = {
-      speak: "I call out from the hearth before the door opens. 'Please — I mean no harm. I only wanted warmth and a kind word.' My voice, gentle and desperate, gives Felix pause. He steps inside, fist raised, but hesitates.",
-      stay: "I remain seated, my heart thundering. De Lacey turns toward the door. 'Stay where you are, friend — let me speak to them.' His voice is calm, but I brace myself for what comes through the door.",
-      flee: "Instinct takes over. I slip out the back into the forest, heart torn. Through the brush I watch the cottage. Was I wrong to hope? Was this always going to be how it ended?"
-    };
-
-    let completedInterruptionChoices = {};
-
-    function makeInterruptionChoice(choice) {
-      if (transitioning) return;
-      transitioning = true;
-      clearTimeout(typewriterTimer);
-      playClickSound();
-      initAudio();
-
-      completedInterruptionChoices[choice] = true;
-      document.querySelectorAll('#choice-buttons-8 .choice-btn').forEach(btn => {
-        if (btn.getAttribute('onclick').includes(choice)) {
-          btn.style.opacity = '0.5'; btn.style.cursor = 'default';
-          btn.style.pointerEvents = 'none'; btn.textContent = '✓ ' + btn.textContent.trim();
-        }
-      });
-
-      const choiceBtns = document.getElementById('choice-buttons-8');
-      choiceBtns.style.display = 'none';
-      const storyEl = document.getElementById('story-8');
-      storyEl.textContent = '';
-      const scene8 = document.getElementById('scene-8');
-      scene8.style.background = interruptionChoiceBackgrounds[choice];
-      scene8.style.backgroundSize = 'cover';
-      scene8.style.backgroundPosition = 'center';
-      scene8.style.backgroundRepeat = 'no-repeat';
-      typeWriter('story-8', interruptionChoiceResponses[choice], 35);
-
-      setTimeout(() => {
-        const contBtn = document.createElement('button');
-        contBtn.className = 'action-btn nav-btn next-btn';
-        contBtn.textContent = 'Continue →';
-        contBtn.style.position = 'absolute'; contBtn.style.bottom = '10vh';
-        contBtn.style.left = '50%'; contBtn.style.transform = 'translateX(-50%)'; contBtn.style.zIndex = '30';
-        contBtn.onclick = () => {
-          clearTimeout(typewriterTimer);
-          contBtn.remove();
-          choiceBtns.style.display = 'flex';
-          choiceBtns.style.position = 'absolute'; choiceBtns.style.bottom = '10vh';
-          storyEl.textContent = '';
-          scene8.style.background = "linear-gradient(135deg, #1a1a2e, #2d1b1b)";
-          scene8.style.backgroundSize = 'cover';
-          scene8.style.backgroundPosition = 'center';
-          scene8.style.backgroundRepeat = 'no-repeat';
-          typeWriter('story-8', storyTexts[8], 40);
-
-          if (['speak','stay','flee'].every(k => completedInterruptionChoices[k] === true)) {
-            if (!document.getElementById('scene-8-nav')) {
-              const navDiv = document.createElement('div');
-              navDiv.id = 'scene-8-nav'; navDiv.className = 'nav-buttons';
-              navDiv.style.position = 'absolute'; navDiv.style.bottom = '5vh';
-              navDiv.style.left = '50%'; navDiv.style.transform = 'translateX(-50%)'; navDiv.style.zIndex = '30';
-
-              const prevBtn = document.createElement('button');
-              prevBtn.className = 'nav-btn prev-btn';
-              prevBtn.textContent = '◀ Previous';
-              prevBtn.onclick = () => { goPrevious(); };
-
-              const nextBtn = document.createElement('button');
-              nextBtn.className = 'nav-btn next-btn';
-              nextBtn.textContent = 'Next ▶';
-              nextBtn.onclick = () => { goToScene('scene-8b'); };
-
-              navDiv.appendChild(prevBtn);
-              navDiv.appendChild(nextBtn);
-              document.getElementById('scene-8').appendChild(navDiv);
-            }
-          } else {
-            const oldNav = document.getElementById('scene-8-nav');
-            if (oldNav) oldNav.remove();
-          }
-          transitioning = false;
-        };
-        document.getElementById('scene-8').appendChild(contBtn);
-        transitioning = false;
-      }, 2000);
-    }
+    
 
     // Helper: navigate to a scene by id (used by the ending chain)
     function goToScene(sceneId) {
@@ -1178,6 +1098,17 @@
 
     function goToFinalChoice() {
       goToScene('scene-13');
+      // Auto-fade after the closing text finishes typing
+      setTimeout(() => {
+        const overlay = document.getElementById('fade-overlay');
+        const closing = document.getElementById('closing-line');
+        if (closing) closing.textContent = "The dark does not answer. It only closes.";
+        if (overlay) overlay.classList.add('show');
+        setTimeout(() => {
+          if (overlay) overlay.classList.remove('show');
+          goToScene('scene-14');
+        }, 3000);
+      }, storyTexts[14].length * 40 + 500);
     }
 
     function endStory(choice) {
