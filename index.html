@@ -416,6 +416,7 @@
         <button class="choice-btn" onclick="makeChoice(3, 'reading')">📝 Learn reading and writing</button>
         <button class="choice-btn" onclick="makeChoice(3, 'cooking')">🍲 Learn about cooking</button>
       </div>
+      <button class="action-btn nav-btn skip-btn" onclick="skipToNext('scene-3')" style="position: absolute; top: 2vh; right: 2vh; z-index: 30; padding: 8px 20px; font-size: 0.85rem;">Skip ⏭</button>
     </div>
 
     <!-- Silent Helper Scene -->
@@ -428,6 +429,7 @@
         <button class="choice-btn" onclick="makeHelperChoice('harvest')">🍄 Harvest Natural Food</button>
         <button class="choice-btn" onclick="makeHelperChoice('repair')">🔨 Repair Loose Fences</button>
       </div>
+      <button class="action-btn nav-btn skip-btn" onclick="skipToNext('scene-helper')" style="position: absolute; top: 2vh; right: 2vh; z-index: 30; padding: 8px 20px; font-size: 0.85rem;">Skip ⏭</button>
     </div>
 
     <!-- Scene 4 -->
@@ -484,6 +486,7 @@
         <button class="choice-btn" onclick="makeInterruptionChoice('stay')">🪑 Stay by the fire — trust De Lacey to explain</button>
         <button class="choice-btn" onclick="makeInterruptionChoice('flee')">🏃 Retreat to the shadows — observe what happens</button>
       </div>
+      <button class="action-btn nav-btn skip-btn" onclick="skipToNext('scene-8')" style="position: absolute; top: 2vh; right: 2vh; z-index: 30; padding: 8px 20px; font-size: 0.85rem;">Skip ⏭</button>
     </div>
 
     <!-- Scene 9: The Beating & Rejection -->
@@ -495,6 +498,7 @@
         <button class="choice-btn" onclick="makeBeatingChoice('reach')">✋ Reach toward De Lacey one last time</button>
         <button class="choice-btn" onclick="makeBeatingChoice('cover')">🙈 Cover your face and retreat toward the door</button>
       </div>
+      <button class="action-btn nav-btn skip-btn" onclick="skipToNext('scene-9')" style="position: absolute; top: 2vh; right: 2vh; z-index: 30; padding: 8px 20px; font-size: 0.85rem;">Skip ⏭</button>
     </div>
 
     <!-- Scene 10: Fleeing into the Woods -->
@@ -1019,6 +1023,22 @@
       const idx = scenes.indexOf(sceneId);
       if (idx !== -1) currentSceneIndex = idx;
       transitionTo(sceneId);
+    }
+
+    // Skip a choice scene and jump straight to the next scene in story order
+    function skipToNext(fromSceneId) {
+      if (transitioning) return;
+      const idx = scenes.indexOf(fromSceneId);
+      if (idx === -1 || idx >= scenes.length - 1) return; // no scene after this one
+      const nextId = scenes[idx + 1];
+      transitioning = true;
+      initAudio();
+      if (nextId === 'scene-10') {
+        startFleeScene();   // sets up the flee scene (window light + button), then transitions
+      } else {
+        goToScene(nextId);  // standard transition (clears typing, plays click)
+      }
+      setTimeout(() => { transitioning = false; }, 900);
     }
 
     // Scene 9 - The Beating choice interaction
