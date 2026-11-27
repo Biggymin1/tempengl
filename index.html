@@ -614,6 +614,7 @@
     function makeChoice(sceneNum, choice) {
       if (transitioning) return;
       transitioning = true;
+      clearTimeout(typewriterTimer);
       playClickSound();
       initAudio();
 
@@ -644,6 +645,7 @@
         contBtn.style.position = 'absolute'; contBtn.style.bottom = '10vh';
         contBtn.style.left = '50%'; contBtn.style.transform = 'translateX(-50%)'; contBtn.style.zIndex = '30';
         contBtn.onclick = () => {
+          clearTimeout(typewriterTimer);
           contBtn.remove();
           // Always restore choice buttons and reset background
           choiceBtns.style.display = 'flex';
@@ -705,6 +707,7 @@
     function makeHelperChoice(choice) {
       if (transitioning) return;
       transitioning = true;
+      clearTimeout(typewriterTimer);
       playClickSound();
       initAudio();
 
@@ -732,6 +735,7 @@
         contBtn.style.position = 'absolute'; contBtn.style.bottom = '10vh';
         contBtn.style.left = '50%'; contBtn.style.transform = 'translateX(-50%)'; contBtn.style.zIndex = '30';
         contBtn.onclick = () => {
+          clearTimeout(typewriterTimer);
           contBtn.remove();
           // Always restore choice buttons and reset background
           choiceBtns.style.display = 'flex';
