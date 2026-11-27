@@ -233,7 +233,10 @@
       background-position: center;
       background-repeat: no-repeat;
     }
-    #scene-5 { background: linear-gradient(135deg, #ffccff, #ff99ff); }
+    #scene-5 { background: linear-gradient(135deg, #c9a96e, #e8d5a3); }
+    #scene-6 { background: linear-gradient(135deg, #4a3728, #6b4c32); }
+    #scene-7 { background: linear-gradient(135deg, #5c3d2e, #8b5e3c); }
+    #scene-8 { background: linear-gradient(135deg, #1a1a2e, #2d1b1b); }
     #scene-helper {
       background: linear-gradient(135deg, #2d3436, #636e72);
     }
@@ -399,6 +402,41 @@
         <button class="nav-btn next-btn" onclick="goNext()">Next ▶</button>
       </div>
     </div>
+
+    <!-- Scene 6: The Knock & Welcome -->
+    <div class="scene inactive" id="scene-6">
+      <div class="story-container">
+        <p class="story-text" id="story-6"></p>
+      </div>
+      <div class="nav-buttons">
+        <button class="nav-btn prev-btn" onclick="goPrevious()">◀ Previous</button>
+        <button class="nav-btn next-btn" onclick="goNext()">Next ▶</button>
+      </div>
+    </div>
+
+    <!-- Scene 7: The Conversation -->
+    <div class="scene inactive" id="scene-7">
+      <div class="story-container">
+        <p class="story-text" id="story-7"></p>
+      </div>
+      <div class="nav-buttons">
+        <button class="nav-btn prev-btn" onclick="goPrevious()">◀ Previous</button>
+        <button class="nav-btn next-btn" onclick="goNext()">Next ▶</button>
+      </div>
+    </div>
+
+    <!-- Scene 8: The Interruption -->
+    <div class="scene inactive" id="scene-8">
+      <div class="story-container">
+        <p class="story-text" id="story-8"></p>
+      </div>
+      <div class="choice-buttons" id="choice-buttons-8">
+        <button class="choice-btn" onclick="makeInterruptionChoice('speak')">🗣️ Call out — let them hear your voice first</button>
+        <button class="choice-btn" onclick="makeInterruptionChoice('stay')">🪑 Stay by the fire — trust De Lacey to explain</button>
+        <button class="choice-btn" onclick="makeInterruptionChoice('flee')">🏃 Retreat to the shadows — observe what happens</button>
+      </div>
+    </div>
+
   </div>
 
   <div class="audio-controls">
@@ -492,9 +530,12 @@
       'scene-3': 2,
       'scene-helper': 3,
       'scene-4': 4,
-      'scene-5': 5
+      'scene-5': 5,
+      'scene-6': 6,
+      'scene-7': 7,
+      'scene-8': 8
     };
-    const scenes = ['scene-1', 'scene-2', 'scene-3', 'scene-helper', 'scene-4', 'scene-5'];
+    const scenes = ['scene-1', 'scene-2', 'scene-3', 'scene-helper', 'scene-4', 'scene-5', 'scene-6', 'scene-7', 'scene-8'];
     let currentSceneIndex = 0;
 
     const storyTexts = [
@@ -503,7 +544,10 @@
       "Maybe I can learn something so they can accept me.",
       "The cottage is quiet. The family rests unaware inside. Perhaps there is something I can do to help them -- small acts that need no words.",
       "I learned most of it now. Maybe I can approach them and they will accept me.",
-      "As dawn broke, Victor turned away, forever separated by what he had become."
+      "One sunny afternoon, I watch from my hovel as Felix, Agatha, and Safie leave the cottage together for a long walk. The blind father remains behind alone, and soon I hear the soft strum of his guitar drifting through the walls.",
+      "My heart pounds as I step out of my hovel. I knock on the front door and ask to rest by the fire for a few minutes. Old De Lacey — unable to see me — warmly invites me in and offers me a seat by the hearth.",
+      "Without admitting what I look like, I tell De Lacey that I am a lonely traveler seeking protection from prejudiced neighbors who misjudge me. Moved by my gentle voice and sorrow, De Lacey promises to help plead my case to his children.",
+      "Just as I grab De Lacey's knees in gratitude, a knock sounds at the door. Felix, Agatha, and Safie have returned early. In the book, Agatha faints, Safie flees, and Felix beats me with a stick — but here, my alternate path begins."
     ];
 
     let typewriterTimer;
@@ -773,6 +817,90 @@
           transitioning = false;
         };
         document.getElementById('scene-helper').appendChild(contBtn);
+        transitioning = false;
+      }, 2000);
+    }
+
+    // Scene 8 - Interruption choice interaction
+    const interruptionChoiceBackgrounds = {
+      speak: "linear-gradient(135deg, #2d1b1b, #4a2e2e)",
+      stay: "linear-gradient(135deg, #3e2723, #5c3d2e)",
+      flee: "linear-gradient(135deg, #1a1a2e, #2d2d4a)"
+    };
+    const interruptionChoiceResponses = {
+      speak: "I call out from the hearth before the door opens. 'Please — I mean no harm. I only wanted warmth and a kind word.' My voice, gentle and desperate, gives Felix pause. He steps inside, fist raised, but hesitates.",
+      stay: "I remain seated, my heart thundering. De Lacey turns toward the door. 'Stay where you are, friend — let me speak to them.' His voice is calm, but I brace myself for what comes through the door.",
+      flee: "Instinct takes over. I slip out the back into the forest, heart torn. Through the brush I watch the cottage. Was I wrong to hope? Was this always going to be how it ended?"
+    };
+
+    let completedInterruptionChoices = {};
+
+    function makeInterruptionChoice(choice) {
+      if (transitioning) return;
+      transitioning = true;
+      clearTimeout(typewriterTimer);
+      playClickSound();
+      initAudio();
+
+      completedInterruptionChoices[choice] = true;
+      document.querySelectorAll('#choice-buttons-8 .choice-btn').forEach(btn => {
+        if (btn.getAttribute('onclick').includes(choice)) {
+          btn.style.opacity = '0.5'; btn.style.cursor = 'default';
+          btn.style.pointerEvents = 'none'; btn.textContent = '✓ ' + btn.textContent.trim();
+        }
+      });
+
+      const choiceBtns = document.getElementById('choice-buttons-8');
+      choiceBtns.style.display = 'none';
+      const storyEl = document.getElementById('story-8');
+      storyEl.textContent = '';
+      const scene8 = document.getElementById('scene-8');
+      scene8.style.background = interruptionChoiceBackgrounds[choice];
+      scene8.style.backgroundSize = 'cover';
+      scene8.style.backgroundPosition = 'center';
+      scene8.style.backgroundRepeat = 'no-repeat';
+      typeWriter('story-8', interruptionChoiceResponses[choice], 35);
+
+      setTimeout(() => {
+        const contBtn = document.createElement('button');
+        contBtn.className = 'action-btn nav-btn next-btn';
+        contBtn.textContent = 'Continue →';
+        contBtn.style.position = 'absolute'; contBtn.style.bottom = '10vh';
+        contBtn.style.left = '50%'; contBtn.style.transform = 'translateX(-50%)'; contBtn.style.zIndex = '30';
+        contBtn.onclick = () => {
+          clearTimeout(typewriterTimer);
+          contBtn.remove();
+          choiceBtns.style.display = 'flex';
+          choiceBtns.style.position = 'absolute'; choiceBtns.style.bottom = '10vh';
+          storyEl.textContent = '';
+          scene8.style.background = "linear-gradient(135deg, #1a1a2e, #2d1b1b)";
+          scene8.style.backgroundSize = 'cover';
+          scene8.style.backgroundPosition = 'center';
+          scene8.style.backgroundRepeat = 'no-repeat';
+          typeWriter('story-8', storyTexts[8], 40);
+
+          if (['speak','stay','flee'].every(k => completedInterruptionChoices[k] === true)) {
+            if (!document.getElementById('scene-8-nav')) {
+              const navDiv = document.createElement('div');
+              navDiv.id = 'scene-8-nav'; navDiv.className = 'nav-buttons';
+              navDiv.style.position = 'absolute'; navDiv.style.bottom = '5vh';
+              navDiv.style.left = '50%'; navDiv.style.transform = 'translateX(-50%)'; navDiv.style.zIndex = '30';
+
+              const prevBtn = document.createElement('button');
+              prevBtn.className = 'nav-btn prev-btn';
+              prevBtn.textContent = '◀ Previous';
+              prevBtn.onclick = () => { goPrevious(); };
+
+              navDiv.appendChild(prevBtn);
+              document.getElementById('scene-8').appendChild(navDiv);
+            }
+          } else {
+            const oldNav = document.getElementById('scene-8-nav');
+            if (oldNav) oldNav.remove();
+          }
+          transitioning = false;
+        };
+        document.getElementById('scene-8').appendChild(contBtn);
         transitioning = false;
       }, 2000);
     }
