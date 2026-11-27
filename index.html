@@ -237,6 +237,28 @@
     #scene-6 { background: linear-gradient(135deg, #4a3728, #6b4c32); }
     #scene-7 { background: linear-gradient(135deg, #5c3d2e, #8b5e3c); }
     #scene-8 { background: linear-gradient(135deg, #1a1a2e, #2d1b1b); }
+    #scene-9 { background: linear-gradient(135deg, #3a1c1c, #1a0e0e); }
+    #scene-10 { background: linear-gradient(135deg, #0d1321, #1d2d44); }
+    #scene-11 { background: linear-gradient(135deg, #0b0b12, #161622); }
+    #scene-12 { background: linear-gradient(135deg, #050507, #0a0a0f); }
+    #scene-9 .story-text { color: #f5dcdc; }
+    #scene-10 .story-text { color: #c9d6e8; }
+    #scene-11 .story-text { color: #b8b8c8; }
+    #scene-12 .story-text { color: #d8d8e0; }
+    /* Cottage window light (placeholder) used in the flee scene */
+    .cottage-light {
+      position: absolute;
+      top: 42%;
+      left: 72%;
+      width: 110px;
+      height: 85px;
+      background: radial-gradient(circle, rgba(255,205,100,0.95), rgba(255,160,40,0.4) 55%, rgba(255,120,0,0) 75%);
+      border-radius: 10px;
+      box-shadow: 0 0 60px 20px rgba(255,170,60,0.5);
+      transition: transform 1s ease, opacity 1s ease, box-shadow 1s ease;
+      z-index: 5;
+      pointer-events: none;
+    }
     #scene-helper {
       background: linear-gradient(135deg, #2d3436, #636e72);
     }
@@ -270,6 +292,33 @@
       z-index: 30;
       display: none;
     }
+
+    /* Final fade-to-black overlay */
+    #fade-overlay {
+      position: fixed;
+      inset: 0;
+      background: #000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 2s ease;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #fade-overlay.show { opacity: 1; pointer-events: auto; }
+    #fade-overlay .closing-line {
+      color: #6a6a7a;
+      font-family: "Georgia", "Times New Roman", serif;
+      font-size: clamp(1.1rem, 2.2vw, 1.8rem);
+      letter-spacing: 2px;
+      line-height: 1.6;
+      text-align: center;
+      padding: 0 24px;
+      opacity: 0;
+      transition: opacity 2s ease 1.2s;
+    }
+    #fade-overlay.show .closing-line { opacity: 1; }
 
     /* Story text / typewriter */
     .story-container {
@@ -437,7 +486,52 @@
       </div>
     </div>
 
+    <!-- Scene 9: The Beating & Rejection -->
+    <div class="scene inactive" id="scene-9">
+      <div class="story-container">
+        <p class="story-text" id="story-9"></p>
+      </div>
+      <div class="choice-buttons" id="choice-buttons-9">
+        <button class="choice-btn" onclick="makeBeatingChoice('reach')">✋ Reach toward De Lacey one last time</button>
+        <button class="choice-btn" onclick="makeBeatingChoice('cover')">🙈 Cover your face and retreat toward the door</button>
+      </div>
+    </div>
+
+    <!-- Scene 10: Fleeing into the Woods -->
+    <div class="scene inactive" id="scene-10">
+      <div class="cottage-light" id="cottage-light"></div>
+      <div class="story-container">
+        <p class="story-text" id="story-10"></p>
+      </div>
+      <div class="nav-buttons" id="flee-controls">
+        <button class="nav-btn next-btn" id="flee-btn" onclick="advanceFlee()">▶ Deeper into the dark</button>
+      </div>
+    </div>
+
+    <!-- Scene 11: Grief & Rage in the Dark -->
+    <div class="scene inactive" id="scene-11">
+      <div class="story-container">
+        <p class="story-text" id="story-11"></p>
+      </div>
+      <div class="nav-buttons">
+        <button class="nav-btn next-btn" onclick="goToFinalScene()">Next ▶</button>
+      </div>
+    </div>
+
+    <!-- Scene 12: Breaking the Fourth Wall -->
+    <div class="scene inactive" id="scene-12">
+      <div class="story-container">
+        <p class="story-text" id="story-12"></p>
+      </div>
+      <div class="choice-buttons" id="choice-buttons-12">
+        <button class="choice-btn" onclick="endStory('close')">🚪 Close the hovel</button>
+        <button class="choice-btn" onclick="endStory('dark')">🌑 Step into the dark</button>
+      </div>
+    </div>
+
   </div>
+
+  <div id="fade-overlay"><div class="closing-line" id="closing-line"></div></div>
 
   <div class="audio-controls">
     <button class="mute-btn" id="mute-btn" onclick="toggleMute()">🔊 Unmute</button>
@@ -533,9 +627,13 @@
       'scene-5': 5,
       'scene-6': 6,
       'scene-7': 7,
-      'scene-8': 8
+      'scene-8': 8,
+      'scene-9': 9,
+      'scene-10': 10,
+      'scene-11': 11,
+      'scene-12': 12
     };
-    const scenes = ['scene-1', 'scene-2', 'scene-3', 'scene-helper', 'scene-4', 'scene-5', 'scene-6', 'scene-7', 'scene-8'];
+    const scenes = ['scene-1', 'scene-2', 'scene-3', 'scene-helper', 'scene-4', 'scene-5', 'scene-6', 'scene-7', 'scene-8', 'scene-9', 'scene-10', 'scene-11', 'scene-12'];
     let currentSceneIndex = 0;
 
     const storyTexts = [
@@ -547,7 +645,11 @@
       "One sunny afternoon, I watch from my hovel as Felix, Agatha, and Safie leave the cottage together for a long walk. The blind father remains behind alone, and soon I hear the soft strum of his guitar drifting through the walls.",
       "My heart pounds as I step out of my hovel. I knock on the front door and ask to rest by the fire for a few minutes. Old De Lacey — unable to see me — warmly invites me in and offers me a seat by the hearth.",
       "Without admitting what I look like, I tell De Lacey that I am a lonely traveler seeking protection from prejudiced neighbors who misjudge me. Moved by my gentle voice and sorrow, De Lacey promises to help plead my case to his children.",
-      "Just as I grab De Lacey's knees in gratitude, a knock sounds at the door. Felix, Agatha, and Safie have returned early. In the book, Agatha faints, Safie flees, and Felix beats me with a stick — but here, my alternate path begins."
+      "Just as I grab De Lacey's knees in gratitude, a knock sounds at the door. Felix, Agatha, and Safie have returned early. In the book, Agatha faints, Safie flees, and Felix beats me with a stick — but here, my alternate path begins.",
+      "The first blow lands across my ribs. A second cracks against my shoulder, and my stitched body simply takes it — I have endured worse cold, worse hunger, worse loneliness than this. But the shock is not in the pain. It is in the hand that swings the stick: the hand I watched split firewood all winter. Felix. His voice breaks with panic. 'Get away from him! Get out of our home!' Behind him Agatha has crumpled against the table, Safie is already fleeing through the open door, and old De Lacey reaches out blindly into the chaos, crying, 'What is happening? Felix — why would you strike our guest?' I could close my hand and snap that stick in two. I could stop him with one arm. But I only try to find the words I practiced a hundred times in the dark — 'Wait — please — listen — I am the one who—' — and the noise swallows every one of them.",
+      "I do not run because I am weak. I run because staying means only two things: letting Felix beat me until this body finally fails, or catching that stick and breaking the man I love to save myself. So I run. Behind me, the cottage window glows warm and golden — the same hearth I touched only moments ago. Ahead of me, the freezing dark closes back in. I do not dare look back. Every step I take into the trees severs the only human bond I have ever known.",
+      "I fall to my knees in the snow and drive my great stitched hands into the frozen earth, and I weep. I weep for Agatha, who fainted at the sight of me. I weep for Safie, who ran in terror. I weep for Felix, who hated me before I could speak a single word I had learned so carefully. What was any of it for? I stopped stealing their food so they would not go hungry. I froze in the dark so they could keep their fire. I taught myself their letters and their language by moonlight. And one look at my face erased all of it. For the first time, I understand why Milton's Satan chose to war against his creator. If the world will not offer me kindness, then fear is all I have left to take.",
+      "The trees and the snow begin to fade. The forest peels away — the cottage, the window, all of it — until there is nothing left but me, looking back at you. You were behind my eyes the entire time. You laid your hand against the wall and chose what I would learn. You chopped the wood. You read the books. You believed kindness would be enough. So tell me — what did I do wrong? Did I fail to learn their language? Did I fail to carry their wood? Or was my only crime the face Victor Frankenstein gave me? When a creature does everything right and the world still calls him a monster — who is the real monster? The one who was stitched together... or the ones who shut the door?"
     ];
 
     let typewriterTimer;
@@ -891,7 +993,13 @@
               prevBtn.textContent = '◀ Previous';
               prevBtn.onclick = () => { goPrevious(); };
 
+              const nextBtn = document.createElement('button');
+              nextBtn.className = 'nav-btn next-btn';
+              nextBtn.textContent = 'Next ▶';
+              nextBtn.onclick = () => { goToScene('scene-9'); };
+
               navDiv.appendChild(prevBtn);
+              navDiv.appendChild(nextBtn);
               document.getElementById('scene-8').appendChild(navDiv);
             }
           } else {
@@ -903,6 +1011,135 @@
         document.getElementById('scene-8').appendChild(contBtn);
         transitioning = false;
       }, 2000);
+    }
+
+    // Helper: navigate to a scene by id (used by the ending chain)
+    function goToScene(sceneId) {
+      playClickSound();
+      const idx = scenes.indexOf(sceneId);
+      if (idx !== -1) currentSceneIndex = idx;
+      transitionTo(sceneId);
+    }
+
+    // Scene 9 - The Beating choice interaction
+    const beatingChoiceBackgrounds = {
+      reach: "linear-gradient(135deg, #4a1c1c, #2a0e0e)",
+      cover: "linear-gradient(135deg, #3a1c1c, #1a0e0e)"
+    };
+    const beatingChoiceResponses = {
+      reach: "I stretch one trembling hand toward the old man's knee — one last touch of the kindness I thought I had found. Felix brings the stick down again and again, driving me back, until my shoulders strike the doorframe and the freezing night rushes in behind me.",
+      cover: "I lift my arms over my face — not to shield myself from the blows, but so they will not have to look at what Victor made. Felix drives me backward, strike after strike, until I stumble out through the doorway into the snow."
+    };
+
+    function makeBeatingChoice(choice) {
+      if (transitioning) return;
+      transitioning = true;
+      clearTimeout(typewriterTimer);
+      playClickSound();
+      initAudio();
+
+      document.querySelectorAll('#choice-buttons-9 .choice-btn').forEach(btn => {
+        if (btn.getAttribute('onclick').includes(choice)) {
+          btn.style.opacity = '0.5'; btn.style.cursor = 'default';
+          btn.style.pointerEvents = 'none'; btn.textContent = '✓ ' + btn.textContent.trim();
+        }
+      });
+
+      const choiceBtns = document.getElementById('choice-buttons-9');
+      choiceBtns.style.display = 'none';
+      const storyEl = document.getElementById('story-9');
+      storyEl.textContent = '';
+      const scene9 = document.getElementById('scene-9');
+      scene9.style.background = beatingChoiceBackgrounds[choice];
+      typeWriter('story-9', beatingChoiceResponses[choice], 35);
+
+      setTimeout(() => {
+        const contBtn = document.createElement('button');
+        contBtn.className = 'action-btn nav-btn next-btn';
+        contBtn.textContent = 'Continue →';
+        contBtn.style.position = 'absolute'; contBtn.style.bottom = '10vh';
+        contBtn.style.left = '50%'; contBtn.style.transform = 'translateX(-50%)'; contBtn.style.zIndex = '30';
+        contBtn.onclick = () => {
+          clearTimeout(typewriterTimer);
+          contBtn.remove();
+          startFleeScene();
+        };
+        document.getElementById('scene-9').appendChild(contBtn);
+        transitioning = false;
+      }, 2000);
+    }
+
+    // Scene 10 - Fleeing: click deeper into the dark until the window light vanishes
+    let fleeClicks = 0;
+    const FLEE_MAX_CLICKS = 3;
+
+    function startFleeScene() {
+      const light = document.getElementById('cottage-light');
+      if (light) {
+        light.style.transition = 'none';
+        light.style.opacity = '1';
+        light.style.transform = 'scale(1)';
+        light.style.boxShadow = '0 0 60px 20px rgba(255,170,60,0.5)';
+        void light.offsetWidth;
+        light.style.transition = 'transform 1s ease, opacity 1s ease, box-shadow 1s ease';
+      }
+      fleeClicks = 0;
+      const fleeControls = document.getElementById('flee-controls');
+      if (fleeControls) {
+        fleeControls.innerHTML = '';
+        const fleeBtn = document.createElement('button');
+        fleeBtn.className = 'nav-btn next-btn';
+        fleeBtn.id = 'flee-btn';
+        fleeBtn.textContent = '▶ Deeper into the dark';
+        fleeBtn.onclick = advanceFlee;
+        fleeControls.appendChild(fleeBtn);
+      }
+      goToScene('scene-10');
+    }
+
+    function advanceFlee() {
+      if (transitioning) return;
+      playClickSound();
+      fleeClicks++;
+      const light = document.getElementById('cottage-light');
+      if (fleeClicks >= FLEE_MAX_CLICKS) {
+        if (light) { light.style.opacity = '0'; light.style.transform = 'scale(0.15)'; light.style.boxShadow = 'none'; }
+        const fleeControls = document.getElementById('flee-controls');
+        if (fleeControls) {
+          fleeControls.innerHTML = '';
+          const contBtn = document.createElement('button');
+          contBtn.className = 'nav-btn next-btn';
+          contBtn.textContent = 'Continue →';
+          contBtn.onclick = () => { goToScene('scene-11'); };
+          fleeControls.appendChild(contBtn);
+        }
+      } else if (light) {
+        const s = 1 - fleeClicks * 0.3;
+        light.style.transform = `scale(${s})`;
+        light.style.opacity = `${1 - fleeClicks * 0.35}`;
+      }
+    }
+
+    // Scene 12 - Breaking the fourth wall: final fade to black
+    const endLines = {
+      close: "The door is closed. The dark does not answer. It only waits.",
+      dark: "You step into the dark. It does not answer. It only closes."
+    };
+
+    // Scene 12 entry: hide final buttons until the monologue lands, then reveal
+    function goToFinalScene() {
+      const btns = document.getElementById('choice-buttons-12');
+      if (btns) btns.style.display = 'none';
+      goToScene('scene-12');
+      setTimeout(() => { if (btns) btns.style.display = 'flex'; }, storyTexts[12].length * 40 + 500);
+    }
+
+    function endStory(choice) {
+      playClickSound();
+      const overlay = document.getElementById('fade-overlay');
+      const closing = document.getElementById('closing-line');
+      if (closing) closing.textContent = endLines[choice] || "The dark does not answer. It only closes.";
+      if (overlay) overlay.classList.add('show');
     }
   </script>
 </body>
