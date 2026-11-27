@@ -239,11 +239,31 @@
       background-position: center;
       background-repeat: no-repeat;
     }
-    #scene-6 { background: linear-gradient(135deg, #4a3728, #6b4c32); }
-    #scene-7 { background: linear-gradient(135deg, #5c3d2e, #8b5e3c); }
-    #scene-8 { background: linear-gradient(135deg, #1a1a2e, #2d1b1b); }
+    #scene-6 {
+      background: linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url('assets/scene6.jpeg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+    #scene-7 {
+      background: linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url('assets/scene7.jpeg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+    #scene-8 {
+      background: linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url('assets/scene7.jpeg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
     #scene-9 { background: linear-gradient(135deg, #3a1c1c, #1a0e0e); }
-    #scene-8b { background: linear-gradient(135deg, #3a1717, #1c0f0f); }
+    #scene-8b {
+      background: linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url('assets/scene8.jpeg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
     #scene-10 { background: linear-gradient(135deg, #0d1321, #1d2d44); }
     #scene-11 { background: linear-gradient(135deg, #0b0b12, #161622); }
     #scene-12 { background: linear-gradient(135deg, #050507, #0a0a0f); }
@@ -510,15 +530,14 @@
     </div>
 
     <!-- Scene 9: The Beating & Rejection -->
+<!-- Scene 9: The Beating & Rejection -->
     <div class="scene inactive" id="scene-9">
       <div class="story-container">
         <p class="story-text" id="story-9"></p>
       </div>
-      <div class="choice-buttons" id="choice-buttons-9">
-        <button class="choice-btn" onclick="makeBeatingChoice('reach')">✋ Reach toward De Lacey one last time</button>
-        <button class="choice-btn" onclick="makeBeatingChoice('cover')">🙈 Cover your face and retreat toward the door</button>
+      <div class="nav-buttons" id="beating-nav">
+        <button class="nav-btn next-btn" onclick="continueAfterBeating()">Continue →</button>
       </div>
-      <button class="action-btn nav-btn skip-btn" onclick="skipToNext('scene-9')" style="position: absolute; top: 2vh; right: 2vh; z-index: 30; padding: 8px 20px; font-size: 0.85rem;">Skip ⏭</button>
     </div>
 
     <!-- Scene 10: Fleeing into the Woods -->
@@ -1070,51 +1089,10 @@
     }
 
     // Scene 9 - The Beating choice interaction
-    const beatingChoiceBackgrounds = {
-      reach: "linear-gradient(135deg, #4a1c1c, #2a0e0e)",
-      cover: "linear-gradient(135deg, #3a1c1c, #1a0e0e)"
-    };
-    const beatingChoiceResponses = {
-      reach: "I stretch one trembling hand toward the old man's knee — one last touch of the kindness I thought I had found. Felix brings the stick down again and again, driving me back, until my shoulders strike the doorframe and the freezing night rushes in behind me.",
-      cover: "I lift my arms over my face — not to shield myself from the blows, but so they will not have to look at what Victor made. Felix drives me backward, strike after strike, until I stumble out through the doorway into the snow."
-    };
-
-    function makeBeatingChoice(choice) {
-      if (transitioning) return;
-      transitioning = true;
+    // Scene 9 - simple Continue button that leads to the flee scene
+    function continueAfterBeating() {
       clearTimeout(typewriterTimer);
-      playClickSound();
-      initAudio();
-
-      document.querySelectorAll('#choice-buttons-9 .choice-btn').forEach(btn => {
-        if (btn.getAttribute('onclick').includes(choice)) {
-          btn.style.opacity = '0.5'; btn.style.cursor = 'default';
-          btn.style.pointerEvents = 'none'; btn.textContent = '✓ ' + btn.textContent.trim();
-        }
-      });
-
-      const choiceBtns = document.getElementById('choice-buttons-9');
-      choiceBtns.style.display = 'none';
-      const storyEl = document.getElementById('story-9');
-      storyEl.textContent = '';
-      const scene9 = document.getElementById('scene-9');
-      scene9.style.background = beatingChoiceBackgrounds[choice];
-      typeWriter('story-9', beatingChoiceResponses[choice], 35);
-
-      setTimeout(() => {
-        const contBtn = document.createElement('button');
-        contBtn.className = 'action-btn nav-btn next-btn';
-        contBtn.textContent = 'Continue →';
-        contBtn.style.position = 'absolute'; contBtn.style.bottom = '10vh';
-        contBtn.style.left = '50%'; contBtn.style.transform = 'translateX(-50%)'; contBtn.style.zIndex = '30';
-        contBtn.onclick = () => {
-          clearTimeout(typewriterTimer);
-          contBtn.remove();
-          startFleeScene();
-        };
-        document.getElementById('scene-9').appendChild(contBtn);
-        transitioning = false;
-      }, 2000);
+      startFleeScene();
     }
 
     // Scene 10 - Fleeing: click deeper into the dark until the window light vanishes
