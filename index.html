@@ -234,6 +234,9 @@
       background-repeat: no-repeat;
     }
     #scene-5 { background: linear-gradient(135deg, #ffccff, #ff99ff); }
+    #scene-helper {
+      background: linear-gradient(135deg, #2d3436, #636e72);
+    }
 
     /* Intro scenes (disclaimer & context) */
     #scene-disclaimer,
@@ -292,6 +295,7 @@
     #scene-2 .story-text { color: #e8f5e9; }
     #scene-4 .story-text { color: #fffde7; }
     #scene-5 .story-text { color: #fce4ec; }
+    #scene-helper .story-text { color: #e0e0e0; }
   </style>
 </head>
 <body>
@@ -359,6 +363,18 @@
         <button class="choice-btn" onclick="makeChoice(3, 'music')">🎵 Learn about music</button>
         <button class="choice-btn" onclick="makeChoice(3, 'reading')">📝 Learn reading and writing</button>
         <button class="choice-btn" onclick="makeChoice(3, 'cooking')">🍲 Learn about cooking</button>
+      </div>
+    </div>
+
+    <!-- Silent Helper Scene -->
+    <div class="scene inactive" id="scene-helper">
+      <div class="story-container">
+        <p class="story-text" id="story-helper"></p>
+      </div>
+      <div class="choice-buttons" id="choice-buttons-helper">
+        <button class="choice-btn" onclick="makeHelperChoice('firewood')">🪓 Chop &amp; Collect Firewood</button>
+        <button class="choice-btn" onclick="makeHelperChoice('harvest')">🍄 Harvest Natural Food</button>
+        <button class="choice-btn" onclick="makeHelperChoice('repair')">🔨 Repair Loose Fences</button>
       </div>
     </div>
 
@@ -470,13 +486,22 @@
       muteBtn.classList.toggle('muted', isMuted);
     }
 
-    const scenes = ['scene-1', 'scene-2', 'scene-3', 'scene-4', 'scene-5'];
+    const sceneToStoryIndex = {
+      'scene-1': 0,
+      'scene-2': 1,
+      'scene-3': 2,
+      'scene-helper': 3,
+      'scene-4': 4,
+      'scene-5': 5
+    };
+    const scenes = ['scene-1', 'scene-2', 'scene-3', 'scene-helper', 'scene-4', 'scene-5'];
     let currentSceneIndex = 0;
 
     const storyTexts = [
       "The night was cold as Victor approached the De Lacey cottage.",
       "Through the window he watched the family gather around their hearth.",
       "Maybe I can learn something so they can accept me.",
+      "The cottage is quiet. The family rests unaware inside. Perhaps there is something I can do to help them — small acts that need no words.",
       "I learned most of it now. Maybe I can approach them and they will accept me.",
       "As dawn broke, Victor turned away, forever separated by what he had become."
     ];
@@ -516,8 +541,9 @@
       const active = document.getElementById(sceneId);
       active.classList.remove('inactive'); active.classList.add('active');
       if (sceneId === 'scene-1' && scene1Audio) scene1Audio.play().catch(e => {});
-      const n = parseInt(sceneId.replace('scene-', '')) - 1;
-      setTimeout(() => typeWriter(`story-${n + 1}`, storyTexts[n], 40), 200);
+      const n = sceneToStoryIndex[sceneId];
+      const storySuffix = sceneId.replace('scene-', '');
+      setTimeout(() => typeWriter(`story-${storySuffix}`, storyTexts[n], 40), 200);
     }
 
     function startGame() {
@@ -629,25 +655,120 @@
           scene3.style.backgroundRepeat = 'no-repeat';
           typeWriter('story-3', "Maybe I can learn something so they can accept me.", 40);
 
-          // Show Proceed button alongside choices only when all 4 have been explored
+          // Show Next nav button alongside choices only when all 4 have been explored
           if (['background','music','reading','cooking'].every(k => completedChoices[k] === true)) {
-            if (!document.getElementById('proceed-btn-3')) {
-              const pBtn = document.createElement('button');
-              pBtn.id = 'proceed-btn-3'; pBtn.className = 'action-btn start-btn';
-              pBtn.textContent = 'Proceed to Scene 4 →';
-              pBtn.style.position = 'absolute'; pBtn.style.bottom = '5vh';
-              pBtn.style.left = '50%'; pBtn.style.transform = 'translateX(-50%)'; pBtn.style.zIndex = '30';
-              pBtn.onclick = () => { pBtn.remove(); goNext(); };
-              document.getElementById('scene-3').appendChild(pBtn);
+            if (!document.getElementById('scene-3-nav')) {
+              const navDiv = document.createElement('div');
+              navDiv.id = 'scene-3-nav'; navDiv.className = 'nav-buttons';
+              navDiv.style.position = 'absolute'; navDiv.style.bottom = '5vh';
+              navDiv.style.left = '50%'; navDiv.style.transform = 'translateX(-50%)'; navDiv.style.zIndex = '30';
+
+              const prevBtn = document.createElement('button');
+              prevBtn.className = 'nav-btn prev-btn';
+              prevBtn.textContent = '◀ Previous';
+              prevBtn.onclick = () => { goPrevious(); };
+
+              const nextBtn = document.createElement('button');
+              nextBtn.className = 'nav-btn next-btn';
+              nextBtn.textContent = 'Next ▶';
+              nextBtn.onclick = () => { goNext(); };
+
+              navDiv.appendChild(prevBtn);
+              navDiv.appendChild(nextBtn);
+              document.getElementById('scene-3').appendChild(navDiv);
             }
           } else {
-            // Remove Proceed button if it was previously shown but now not all done (edge case)
-            const oldBtn = document.getElementById('proceed-btn-3');
-            if (oldBtn) oldBtn.remove();
+            // Remove nav buttons if they were previously shown but now not all done (edge case)
+            const oldNav = document.getElementById('scene-3-nav');
+            if (oldNav) oldNav.remove();
           }
           transitioning = false;
         };
         document.getElementById('scene-3').appendChild(contBtn);
+        transitioning = false;
+      }, 2000);
+    }
+  // Silent Helper choice interaction
+    const helperChoiceBackgrounds = {
+      firewood: "linear-gradient(135deg, #3e2723, #4e342e)",
+      harvest: "linear-gradient(135deg, #2e7d32, #388e3c)",
+      repair: "linear-gradient(135deg, #546e7a, #455a64)"
+    };
+    const helperChoiceResponses = {
+      firewood: "I gather fallen branches from the forest edge, splitting them against a stump. The rhythm steadies my thoughts — each crack of wood a small proof that I can provide, not destroy.",
+      harvest: "Wild berries cluster beneath the shaded bushes, and mushrooms peek from damp logs. I fill a bark tray with what I find, leaving enough for the forest creatures.",
+      repair: "A section of the cottage fence has fallen to rot. I find loose planks and nail them back into place with a flat stone. The work is clumsy but honest."
+    };
+
+    let completedHelperChoices = {};
+
+    function makeHelperChoice(choice) {
+      if (transitioning) return;
+      transitioning = true;
+      playClickSound();
+      initAudio();
+
+      completedHelperChoices[choice] = true;
+      document.querySelectorAll('#choice-buttons-helper .choice-btn').forEach(btn => {
+        if (btn.getAttribute('onclick').includes(choice)) {
+          btn.style.opacity = '0.5'; btn.style.cursor = 'default';
+          btn.style.pointerEvents = 'none'; btn.textContent = '✓ ' + btn.textContent.trim();
+        }
+      });
+
+      const choiceBtns = document.getElementById('choice-buttons-helper');
+      choiceBtns.style.display = 'none';
+      const storyEl = document.getElementById('story-helper');
+      storyEl.textContent = '';
+      // Change background to choice-specific gradient (placeholder)
+      const sceneHelper = document.getElementById('scene-helper');
+      sceneHelper.style.background = helperChoiceBackgrounds[choice];
+      typeWriter('story-helper', helperChoiceResponses[choice], 35);
+
+      setTimeout(() => {
+        const contBtn = document.createElement('button');
+        contBtn.className = 'action-btn nav-btn next-btn';
+        contBtn.textContent = 'Continue →';
+        contBtn.style.position = 'absolute'; contBtn.style.bottom = '10vh';
+        contBtn.style.left = '50%'; contBtn.style.transform = 'translateX(-50%)'; contBtn.style.zIndex = '30';
+        contBtn.onclick = () => {
+          contBtn.remove();
+          // Always restore choice buttons and reset background
+          choiceBtns.style.display = 'flex';
+          choiceBtns.style.position = 'absolute'; choiceBtns.style.bottom = '10vh';
+          storyEl.textContent = '';
+          sceneHelper.style.background = "linear-gradient(135deg, #2d3436, #636e72)";
+          typeWriter('story-helper', storyTexts[sceneToStoryIndex['scene-helper']], 40);
+
+          // Show nav buttons alongside choices only when all 3 have been explored
+          if (['firewood','harvest','repair'].every(k => completedHelperChoices[k] === true)) {
+            if (!document.getElementById('helper-nav')) {
+              const navDiv = document.createElement('div');
+              navDiv.id = 'helper-nav'; navDiv.className = 'nav-buttons';
+              navDiv.style.position = 'absolute'; navDiv.style.bottom = '5vh';
+              navDiv.style.left = '50%'; navDiv.style.transform = 'translateX(-50%)'; navDiv.style.zIndex = '30';
+
+              const prevBtn = document.createElement('button');
+              prevBtn.className = 'nav-btn prev-btn';
+              prevBtn.textContent = '◀ Previous';
+              prevBtn.onclick = () => { goPrevious(); };
+
+              const nextBtn = document.createElement('button');
+              nextBtn.className = 'nav-btn next-btn';
+              nextBtn.textContent = 'Next ▶';
+              nextBtn.onclick = () => { goNext(); };
+
+              navDiv.appendChild(prevBtn);
+              navDiv.appendChild(nextBtn);
+              document.getElementById('scene-helper').appendChild(navDiv);
+            }
+          } else {
+            const oldNav = document.getElementById('helper-nav');
+            if (oldNav) oldNav.remove();
+          }
+          transitioning = false;
+        };
+        document.getElementById('scene-helper').appendChild(contBtn);
         transitioning = false;
       }, 2000);
     }
