@@ -243,10 +243,12 @@
     #scene-7 { background: linear-gradient(135deg, #5c3d2e, #8b5e3c); }
     #scene-8 { background: linear-gradient(135deg, #1a1a2e, #2d1b1b); }
     #scene-9 { background: linear-gradient(135deg, #3a1c1c, #1a0e0e); }
+    #scene-8b { background: linear-gradient(135deg, #3a1717, #1c0f0f); }
     #scene-10 { background: linear-gradient(135deg, #0d1321, #1d2d44); }
     #scene-11 { background: linear-gradient(135deg, #0b0b12, #161622); }
     #scene-12 { background: linear-gradient(135deg, #050507, #0a0a0f); }
     #scene-9 .story-text { color: #f5dcdc; }
+    #scene-8b .story-text { color: #f2dede; }
     #scene-10 .story-text { color: #c9d6e8; }
     #scene-11 .story-text { color: #b8b8c8; }
     #scene-12 .story-text { color: #d8d8e0; }
@@ -265,7 +267,10 @@
       pointer-events: none;
     }
     #scene-helper {
-      background: linear-gradient(135deg, #2d3436, #636e72);
+      background: linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url('assets/scene5.jpeg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
     }
 
     /* Intro scenes (disclaimer & context) */
@@ -494,6 +499,16 @@
       <button class="action-btn nav-btn skip-btn" onclick="skipToNext('scene-8')" style="position: absolute; top: 2vh; right: 2vh; z-index: 30; padding: 8px 20px; font-size: 0.85rem;">Skip ⏭</button>
     </div>
 
+    <!-- Scene 8b: Shouting & Provocation -->
+    <div class="scene inactive" id="scene-8b">
+      <div class="story-container">
+        <p class="story-text" id="story-8b"></p>
+      </div>
+      <div class="nav-buttons">
+        <button class="nav-btn next-btn" onclick="goToScene('scene-9')">Continue →</button>
+      </div>
+    </div>
+
     <!-- Scene 9: The Beating & Rejection -->
     <div class="scene inactive" id="scene-9">
       <div class="story-container">
@@ -637,12 +652,13 @@
       'scene-6': 6,
       'scene-7': 7,
       'scene-8': 8,
+      'scene-8b': 13,
       'scene-9': 9,
       'scene-10': 10,
       'scene-11': 11,
       'scene-12': 12
     };
-    const scenes = ['scene-1', 'scene-2', 'scene-3', 'scene-helper', 'scene-4', 'scene-5', 'scene-6', 'scene-7', 'scene-8', 'scene-9', 'scene-10', 'scene-11', 'scene-12'];
+    const scenes = ['scene-1', 'scene-2', 'scene-3', 'scene-helper', 'scene-4', 'scene-5', 'scene-6', 'scene-7', 'scene-8', 'scene-8b', 'scene-9', 'scene-10', 'scene-11', 'scene-12'];
     let currentSceneIndex = 0;
 
     const storyTexts = [
@@ -658,7 +674,8 @@
       "The first blow lands across my ribs. A second cracks against my shoulder, and my stitched body simply takes it — I have endured worse cold, worse hunger, worse loneliness than this. But the shock is not in the pain. It is in the hand that swings the stick: the hand I watched split firewood all winter. Felix. His voice breaks with panic. 'Get away from him! Get out of our home!' Behind him Agatha has crumpled against the table, Safie is already fleeing through the open door, and old De Lacey reaches out blindly into the chaos, crying, 'What is happening? Felix — why would you strike our guest?' I could close my hand and snap that stick in two. I could stop him with one arm. But I only try to find the words I practiced a hundred times in the dark — 'Wait — please — listen — I am the one who—' — and the noise swallows every one of them.",
       "I do not run because I am weak. I run because staying means only two things: letting Felix beat me until this body finally fails, or catching that stick and breaking the man I love to save myself. So I run. Behind me, the cottage window glows warm and golden — the same hearth I touched only moments ago. Ahead of me, the freezing dark closes back in. I do not dare look back. Every step I take into the trees severs the only human bond I have ever known.",
       "I fall to my knees in the snow and drive my great stitched hands into the frozen earth, and I weep. I weep for Agatha, who fainted at the sight of me. I weep for Safie, who ran in terror. I weep for Felix, who hated me before I could speak a single word I had learned so carefully. What was any of it for? I stopped stealing their food so they would not go hungry. I froze in the dark so they could keep their fire. I taught myself their letters and their language by moonlight. And one look at my face erased all of it. For the first time, I understand why Milton's Satan chose to war against his creator. If the world will not offer me kindness, then fear is all I have left to take.",
-      "The trees and the snow begin to fade. The forest peels away — the cottage, the window, all of it — until there is nothing left but me, looking back at you. You were behind my eyes the entire time. You laid your hand against the wall and chose what I would learn. You chopped the wood. You read the books. You believed kindness would be enough. So tell me — what did I do wrong? Did I fail to learn their language? Did I fail to carry their wood? Or was my only crime the face Victor Frankenstein gave me? When a creature does everything right and the world still calls him a monster — who is the real monster? The one who was stitched together... or the ones who shut the door?"
+      "The trees and the snow begin to fade. The forest peels away — the cottage, the window, all of it — until there is nothing left but me, looking back at you. You were behind my eyes the entire time. You laid your hand against the wall and chose what I would learn. You chopped the wood. You read the books. You believed kindness would be enough. So tell me — what did I do wrong? Did I fail to learn their language? Did I fail to carry their wood? Or was my only crime the face Victor Frankenstein gave me? When a creature does everything right and the world still calls him a monster — who is the real monster? The one who was stitched together... or the ones who shut the door?",
+      "Then the front door bursts open, and the warm room fills with noise. Felix storms in with Agatha close behind him — both shouting before they are even through the doorway. 'What is that — what is that thing doing beside our father?' Felix's voice cracks with fury. 'Get away from him! Get away from him now!' Agatha's scream climbs over his: 'It is the monster — it has come to kill us, Felix, it has come for us all!' Their terror feeds on itself, each shout sharper than the last. Felix seizes the heavy stick beside the hearth, his knuckles whitening around the wood. Behind them Safie shrinks back toward the door, and old De Lacey lifts his unseeing hands, begging them to stop. I try to raise my palms and find the words I practiced — but they are already certain. And certainty, in frightened men, turns so quickly to violence."
     ];
 
     let typewriterTimer;
@@ -847,9 +864,9 @@
     }
   // Silent Helper choice interaction
     const helperChoiceBackgrounds = {
-      firewood: "linear-gradient(135deg, #3e2723, #4e342e)",
-      harvest: "linear-gradient(135deg, #2e7d32, #388e3c)",
-      repair: "linear-gradient(135deg, #546e7a, #455a64)"
+      firewood: "url('assets/scene5wood.jpg')",
+      harvest: "url('assets/scene5food.jpg')",
+      repair: "url('assets/scene5fence.jpg')"
     };
     const helperChoiceResponses = {
       firewood: "I gather fallen branches from the forest edge, splitting them against a stump. The rhythm steadies my thoughts -- each crack of wood a small proof that I can provide, not destroy.",
@@ -878,9 +895,12 @@
       choiceBtns.style.display = 'none';
       const storyEl = document.getElementById('story-helper');
       storyEl.textContent = '';
-      // Change background to choice-specific gradient (placeholder)
+      // Change background to choice-specific image
       const sceneHelper = document.getElementById('scene-helper');
-      sceneHelper.style.background = helperChoiceBackgrounds[choice];
+      sceneHelper.style.background = `linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), ${helperChoiceBackgrounds[choice]}`;
+      sceneHelper.style.backgroundSize = 'cover';
+      sceneHelper.style.backgroundPosition = 'center';
+      sceneHelper.style.backgroundRepeat = 'no-repeat';
       typeWriter('story-helper', helperChoiceResponses[choice], 35);
 
       setTimeout(() => {
@@ -896,7 +916,10 @@
           choiceBtns.style.display = 'flex';
           choiceBtns.style.position = 'absolute'; choiceBtns.style.bottom = '10vh';
           storyEl.textContent = '';
-          sceneHelper.style.background = "linear-gradient(135deg, #2d3436, #636e72)";
+          sceneHelper.style.background = "linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url('assets/scene5.jpeg')";
+          sceneHelper.style.backgroundSize = 'cover';
+          sceneHelper.style.backgroundPosition = 'center';
+          sceneHelper.style.backgroundRepeat = 'no-repeat';
           typeWriter('story-helper', storyTexts[sceneToStoryIndex['scene-helper']], 40);
 
           // Show nav buttons alongside choices only when all 3 have been explored
@@ -1005,7 +1028,7 @@
               const nextBtn = document.createElement('button');
               nextBtn.className = 'nav-btn next-btn';
               nextBtn.textContent = 'Next ▶';
-              nextBtn.onclick = () => { goToScene('scene-9'); };
+              nextBtn.onclick = () => { goToScene('scene-8b'); };
 
               navDiv.appendChild(prevBtn);
               navDiv.appendChild(nextBtn);
